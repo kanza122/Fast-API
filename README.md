@@ -67,7 +67,7 @@ I performed **manual functional testing**, **UI validation**, and **API testing 
 ---
 
 ### 🏠 **Dashboard**
-![Dashboard](./img/751388df-c390-44a6-95bc-1bd8a2e09ab0.png)
+![Dashboard](https://github.com/kanza122/Fast-API/blob/main/Dashboard.png)
 > Displays welcome message and navigation menu.
 
 ---
