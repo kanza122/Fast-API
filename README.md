@@ -61,7 +61,7 @@ I performed **manual functional testing**, **UI validation**, and **API testing 
 ---
 
 ### 📝 **Sign Up Page**
-![Sign Up Page](./img/a2f07f30-4d31-4e09-947f-5ea9258af21a.png)
+![Sign Up Page](https://github.com/kanza122/Fast-API/blob/main/Signup.png)
 > User registration with validation for email, password, and confirmation field.
 
 ---
