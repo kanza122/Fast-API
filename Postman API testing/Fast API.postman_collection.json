@@ -1,0 +1,650 @@
+{
+	"info": {
+		"_postman_id": "228467cd-cbe9-4f61-87d2-f8d56962ed1e",
+		"name": "Fast API",
+		"description": "- Iske andr hum login krta hain first requets main AUth 2.0 ke sath\n    \n- hum data body main bhjta hian header main nai kyun ke iske andr hum 3rd party se connect nai hou raha\n    \n- body ke andr text format json nai hou ga x-ww hou ga\n    \n- header main content tyoe \"application/x-www-form-urlencoded\"",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39891997",
+		"_collection_link": "https://tester-3479.postman.co/workspace/Fast-API~fa77801e-b364-4339-b209-550a8bc3a459/collection/39891997-228467cd-cbe9-4f61-87d2-f8d56962ed1e?action=share&source=collection_link&creator=39891997"
+	},
+	"item": [
+		{
+			"name": "Login request (Auth 2.0)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Test the status code is 200\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"//Check if response has token\r",
+							"pm.test(\"Response has token\", function (){\r",
+							"    let value=pm.response.json();\r",
+							"    pm.expect(value).to.have.property(\"access_token\");\r",
+							"})\r",
+							"// Insure password or other private data is not returned\r",
+							"pm.test(\"Response does not contain private data\", function () {\r",
+							"    let value = pm.response.json();\r",
+							"    pm.expect(value).to.not.have.property(\"password\");\r",
+							"    \r",
+							"})\r",
+							"\r",
+							"// Set the access token as collection vairable to used in next request\r",
+							"pm.test(\"set access token as collection vairable\", function(){\r",
+							"    let value= pm.response.json();\r",
+							"    if (value && value.access_token) {\r",
+							"    pm.collectionVariables.set(\"token\",value.access_token)\r",
+							"    console.log(\"token is valid\")}\r",
+							"    else{\r",
+							"        console.log(\"token is invalid\")\r",
+							"    }\r",
+							"})\r",
+							"pm.test(\"set email value in collection \",function(){\r",
+							"    let value=pm.response.json()\r",
+							"    pm.collectionVariables.set(\"email\",value.email)\r",
+							"})\r",
+							"//Check the response time (performance testing)\r",
+							"pm.test(\"Response time is less than 1000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "admin@example.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "changethis",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/login/access-token",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"login",
+						"access-token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200 or 201\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+							"});\r",
+							"let res = pm.response.json();\r",
+							"\r",
+							"// Check email is same as sent\r",
+							"pm.test(\"Response has correct user email\", function () {\r",
+							"    pm.expect(res.email).to.eql(\"user2232@example.com\");\r",
+							"});\r",
+							"// Check user has an ID\r",
+							"pm.test(\"Response contains user ID\", function () {\r",
+							"    pm.expect(res).to.have.property(\"id\");\r",
+							"});\r",
+							"//check private data is not returned\r",
+							"pm.test(\"Password is not exposed in response\", function () {\r",
+							"    pm.expect(res).to.not.have.property(\"password\");\r",
+							"});\r",
+							"//check performance timepm.test\r",
+							"(\"Response time is under 1000ms\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"user2232@example.com\",\r\n  \"is_active\": true,\r\n  \"is_superuser\": false,\r\n  \"full_name\": \"string\",\r\n  \"password\": \"stringstty\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/users/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"users",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get current user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Check the current user\r",
+							"pm.test(\"Status code is 200 or 201\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+							"});\r",
+							"//Store the ID of cuurent user in collection\r",
+							"pm.test(\"Store the ID of current user in collection\", function () {\r",
+							"    let Value = pm.response.json();\r",
+							"     pm.collectionVariables.set(\"ID\",Value.id)\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/users/me",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let res = pm.response.json();\r",
+							"pm.test(\"Check if email is updated\", function () {\r",
+							"    pm.expect(res.email).to.eql(\"newuser@example.com\");\r",
+							"});\r",
+							"pm.test(\"Check if name is updated\", function () {\r",
+							"    pm.expect(res.full_name).to.eql(\"Updated User\");\r",
+							"});\r",
+							"pm.test(\"Status code is 200 or 201\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"full_name\": \"Updated User\",\r\n  \"email\": \"newuser@example.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/users/me",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create item inside user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200 or 201\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+							"});\r",
+							"let res=pm.response.json();\r",
+							"\r",
+							"pm.test(\"check created item and description matches\", function () {\r",
+							"    pm.expect(res.title).to.eql(\"My First Item\");\r",
+							"    pm.expect(res.description).to.eql(\"This is my first test item.\");\r",
+							"});\r",
+							"pm.test(\"set item ID in collection\",function(){\r",
+							"    pm.collectionVariables.set(\"item_id\", res.id);\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"title\": \"My First Item\",\r\n  \"description\": \"This is my first test item.\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/items/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"items",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "All items inside users",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/items/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"items",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update item inside user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let res=pm.response.json(); // Assuming the response is in JSON format\r",
+							"\r",
+							"\r",
+							"pm.test(\"Check if title\", function () {\r",
+							"    pm.expect(res.title).to.eql(\"Updated Test Item\");\r",
+							"});\r",
+							"pm.test(\"Check if description\", function () {\r",
+							"    pm.expect(res.description).to.eql(\"Updated description for testing.\");\r",
+							"});\r",
+							"pm.test(\"Status code is 200 or 201\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"title\": \"Updated Test Item\",\r\n  \"description\": \"Updated description for testing.\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/items/{{item_id}}",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"items",
+						"{{item_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete item",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200 or 204\", () => {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Item deleted successfully\", () => {\r",
+							"    const text = pm.response.text();\r",
+							"    pm.expect(text).to.include(\"success\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/items/{{item_id}}",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"items",
+						"{{item_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200 or 204\", () => {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"User deleted successfully\", () => {\r",
+							"    pm.expect(pm.response.text()).to.include(\"success\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/users/me",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update password",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"current_password\": \"changethis\",\r\n  \"new_password\": \"testtime\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/api/v1/users/me/password",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"v1",
+						"users",
+						"me",
+						"password"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "ID",
+			"value": ""
+		},
+		{
+			"key": "item_id",
+			"value": "",
+			"type": "default"
+		},
+		{
+			"key": "email",
+			"value": ""
+		}
+	]
+}
