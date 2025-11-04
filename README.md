@@ -55,7 +55,7 @@ I performed **manual functional testing**, **UI validation**, and **API testing 
 ## 🖼️ **Application Screenshots**
 
 ### 🔐 **Login Page**
-![Login Page](https://drive.google.com/file/d/1lffdg8iECEYR-x_Ygkj7VZ3A_wZTjBjr/view?usp=sharing)
+![Login Page](https://github.com/kanza122/Fast-API/blob/main/Login.png)
 > Used for user authentication with email and password validation.
 
 ---
